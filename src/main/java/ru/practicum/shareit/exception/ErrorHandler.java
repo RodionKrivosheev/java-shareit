@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ValidationException;
+import java.util.Objects;
 
 @RestControllerAdvice
 @Slf4j
@@ -36,9 +37,10 @@ public class ErrorHandler {
 
     @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleException() {
-        log.error("Неизвестная ошибка");
-        return new ErrorResponse("Неизвестная ошибка");
+    public ErrorResponse handleException(final Throwable e) {
+        String error = "Ошибка: " + e.getClass() + ", " + e.getMessage() + ", причина: " + Objects.toString(e.getCause().getMessage(), "");
+        log.error(error);
+        return new ErrorResponse(error);
     }
 }
 

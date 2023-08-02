@@ -26,6 +26,8 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
 
+    private final ItemService itemService;
+
     @Override
     public ItemDto saveItem(ItemDto itemDto, int userId) {
         User userOwner = userRepository.getUserById(userId);
@@ -62,10 +64,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getItemByUserId(int userId) {
         log.info("Получен список всех вещей пользователя.");
-        return itemRepository.getAllItems().stream()
-                .filter(item -> item.getOwner().getId() == userId)
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+        return itemService.getItemByUserId(userId);
     }
 
     @Override

@@ -12,6 +12,7 @@ import java.util.Map;
 @Repository
 public class UserRepository {
     private final Map<Integer, User> users = new HashMap<>();
+
     private int id = 1;
 
 
@@ -30,7 +31,6 @@ public class UserRepository {
     }
 
     public User updateUser(User user) {
-        //String oldEmail = getUserById(user.getId()).getEmail();
         if (!users.containsKey(user.getId())) {
             throw new NotFoundException("Пользователь не найден.");
         }
