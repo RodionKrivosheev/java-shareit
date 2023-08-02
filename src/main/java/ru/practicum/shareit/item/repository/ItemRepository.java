@@ -14,7 +14,7 @@ public class ItemRepository {
 
     private final Map<Integer, Item> items = new HashMap<>();
 
-    private int id = 0;
+    private int id = 1;
 
     private int generateId() {
         return id++;
