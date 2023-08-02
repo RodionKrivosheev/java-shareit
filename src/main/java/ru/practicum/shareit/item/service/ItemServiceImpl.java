@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.item.ItemStorage.ItemStorageImpl;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -23,8 +24,8 @@ public class ItemServiceImpl implements ItemService {
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final ItemStorageImpl itemStorage;
 
-    private final ItemService itemService;
 
     @Override
     public ItemDto saveItem(ItemDto itemDto, int userId) {
@@ -62,7 +63,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getItemByUserId(int userId) {
         log.info("Получен список всех вещей пользователя.");
-        return itemService.getItemByUserId(userId);
+        return itemStorage.getItemByUserId(userId);
     }
 
     @Override
