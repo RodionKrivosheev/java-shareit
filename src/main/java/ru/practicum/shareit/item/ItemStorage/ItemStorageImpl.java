@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class ItemStorageImpl implements ItemStorage{
+public class ItemStorageImpl implements ItemStorage {
     private final ItemRepository itemRepository;
 
     public ItemStorageImpl(ItemRepository itemRepository) {
