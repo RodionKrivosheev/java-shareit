@@ -12,12 +12,12 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class ItemStorageImpl implements ItemStorage{
-
     private final ItemRepository itemRepository;
 
     public ItemStorageImpl(ItemRepository itemRepository) {
         this.itemRepository = itemRepository;
     }
+
     @Override
     public List<ItemDto> getItemByUserId(int userId) {
         return itemRepository.getAllItems().stream()
