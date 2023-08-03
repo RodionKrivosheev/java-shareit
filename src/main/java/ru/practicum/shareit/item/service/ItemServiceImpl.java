@@ -24,8 +24,10 @@ public class ItemServiceImpl implements ItemService {
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
-    private final ItemStorageImpl itemStorage;
 
+    public ItemRepository getItemRepository() {
+        return itemRepository;
+    }
 
     @Override
     public ItemDto saveItem(ItemDto itemDto, int userId) {
@@ -63,7 +65,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> getItemByUserId(int userId) {
         log.info("Получен список всех вещей пользователя.");
-        return itemStorage.getItemByUserId(userId);
+        return ItemStorageImpl.getItemByUserId(itemRepository, userId);
     }
 
     @Override

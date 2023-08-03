@@ -16,7 +16,7 @@ public class ItemRepository {
 
     private int id = 1;
 
-    private int generateId() {
+    public int generateId() {
         return id++;
     }
 
@@ -57,4 +57,5 @@ public class ItemRepository {
         }
         return result;
     }
+
 }

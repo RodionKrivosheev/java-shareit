@@ -4,14 +4,13 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.validation.constraints.Email;
+import java.util.*;
 
 @Repository
 public class UserRepository {
     private final Map<Integer, User> users = new HashMap<>();
+    //private final Set<Email> emails = new HashSet<>();
 
     private int id = 1;
 
