@@ -14,15 +14,15 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    public final String XSharerUserId = "X-Sharer-User-Id";
+    public final String SharerUserId = "X-Sharer-User-Id";
 
     @PostMapping
-    ItemDto saveItem(@RequestHeader(XSharerUserId) int userId, @RequestBody ItemDto itemDto) {
+    ItemDto saveItem(@RequestHeader(SharerUserId) int userId, @RequestBody ItemDto itemDto) {
         return itemService.saveItem(itemDto, userId);
     }
 
     @PatchMapping("/{itemId}")
-    ItemDto updateItem(@PathVariable int itemId, @RequestHeader(XSharerUserId) int userId,
+    ItemDto updateItem(@PathVariable int itemId, @RequestHeader(SharerUserId) int userId,
                        @RequestBody ItemDto itemDto) {
         return itemService.updateItem(itemId, itemDto, userId);
     }
@@ -33,7 +33,7 @@ public class ItemController {
     }
 
     @GetMapping
-    List<ItemDto> getItemByUserId(@RequestHeader(XSharerUserId) int userId) {
+    List<ItemDto> getItemByUserId(@RequestHeader(SharerUserId) int userId) {
         return itemService.getItemByUserId(userId);
     }
 
