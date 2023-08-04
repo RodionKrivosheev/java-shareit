@@ -15,8 +15,6 @@ import java.util.stream.Collectors;
 @Repository
 public class ItemRepository {
 
-    ItemRepository itemRepository;
-
     private final Map<Integer, Item> items = new HashMap<>();
 
     private int id = 1;
@@ -64,7 +62,7 @@ public class ItemRepository {
     }
 
     public List<ItemDto> getItemByUserId(int userId) {
-        return itemRepository.getAllItems().stream()
+        return getAllItems().stream()
                 .filter(item -> item.getOwner().getId() == userId)
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
