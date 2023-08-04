@@ -2,15 +2,20 @@ package ru.practicum.shareit.item.repository;
 
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.ItemMapper;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 public class ItemRepository {
+
+    ItemRepository itemRepository;
 
     private final Map<Integer, Item> items = new HashMap<>();
 
@@ -56,6 +61,13 @@ public class ItemRepository {
             }
         }
         return result;
+    }
+
+    public List<ItemDto> getItemByUserId(int userId) {
+        return itemRepository.getAllItems().stream()
+                .filter(item -> item.getOwner().getId() == userId)
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 
 }
