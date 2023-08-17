@@ -1,20 +1,32 @@
 package ru.practicum.shareit.item.repository;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+<<<<<<< HEAD
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
+=======
+>>>>>>> fa10711 (commit 1)
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+<<<<<<< HEAD
 import java.util.Map;
 import java.util.stream.Collectors;
+=======
+>>>>>>> fa10711 (commit 1)
 
 @Repository
-public class ItemRepository {
+public interface ItemRepository extends JpaRepository<Item, Long> {
+    @Query(value = "SELECT * FROM items " +
+            "WHERE available = TRUE AND " +
+            "(LOWER(name) LIKE '%' || ?1 || '%' OR LOWER(description) LIKE '%' || ?1 || '%')",
+            nativeQuery = true)
+    List<Item> getItemByText(String text);
 
+<<<<<<< HEAD
     private final Map<Integer, Item> items = new HashMap<>();
 
     private int id = 1;
@@ -68,4 +80,7 @@ public class ItemRepository {
                 .collect(Collectors.toList());
     }
 
+=======
+    List<Item> findAllByOwnerId(Long userId);
+>>>>>>> fa10711 (commit 1)
 }

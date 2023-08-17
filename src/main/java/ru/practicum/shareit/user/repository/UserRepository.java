@@ -1,9 +1,10 @@
 package ru.practicum.shareit.user.repository;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.model.User;
 
+<<<<<<< HEAD
 import java.util.*;
 
 @Repository
@@ -49,4 +50,8 @@ public class UserRepository {
     public void deleteUser(int id) {
         users.remove(id);
     }
+=======
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+>>>>>>> fa10711 (commit 1)
 }
