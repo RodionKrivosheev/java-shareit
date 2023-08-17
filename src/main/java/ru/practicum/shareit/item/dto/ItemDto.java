@@ -1,30 +1,57 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import ru.practicum.shareit.item.comment.dto.CommentDto;
+import lombok.*;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.exception.EmptyPointerException;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Objects;
 
-@Getter
-@Setter
+/**
+ * TODO Sprint add-controllers.
+ */
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class ItemDto {
-    private Long id;
-    @NotBlank
-    private String name;                //краткое название
-    @NotBlank
-    private String description;         //развёрнутое описание
+    private long id;
     @NotNull
-    private Boolean available;          //доступна или нет вещь для аренды
-    private Long owner;                 //владелец вещи;
-    private Long request;               //если создано по запросу, то ссылка на запрос
-    private ItemBookingDto lastBooking; //последнее бронирование
-    private ItemBookingDto nextBooking; //следующего бронирования
-    private List<CommentDto> comments;  //комментарий арендатора
+    @NotBlank
+    private String name;
+    @NotBlank
+    private String description;
+    @NotNull
+    private Boolean available;
+    private BookingsInItem lastBooking;
+    private BookingsInItem nextBooking;
+    private List<CommentDto> comments;
+
+    public ItemDto(Long id, @NotEmpty String name, @NotEmpty String description, @NonNull Boolean available) {
+        if (Objects.isNull(name) || Objects.isNull(description) || name.isEmpty() || description.isEmpty()) {
+            throw new EmptyPointerException("Значение имени или описания не могут быть пустыми");
+        }
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.available = available;
+
+    }
+
+    @Getter
+    @Setter
+    public static class BookingsInItem {
+        private Long id;
+        private Long bookerId;
+
+        public BookingsInItem(Booking booking) {
+            this.id = booking.getId();
+            this.bookerId = booking.getBooker().getId();
+        }
+    }
+
 }

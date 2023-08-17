@@ -1,52 +1,59 @@
 package ru.practicum.shareit.booking.model;
 
-import lombok.Getter;
-import lombok.Setter;
-import ru.practicum.shareit.booking.BookingStatus;
+import lombok.*;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
+/**
+ * TODO Sprint add-bookings.
+ */
+
+@Entity
+@Table(name = "bookings")
 @Getter
 @Setter
-@Entity
-@Table(name = "bookings", schema = "public")
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "booking_id")
     private Long id;
-
     @Column(name = "start_date")
-    private  LocalDateTime start;    //дата и время начала бронирования
-
+    private LocalDateTime start;
     @Column(name = "end_date")
-    private LocalDateTime end;      //дата и время конца бронирования
-
-    @ManyToOne(cascade = CascadeType.REFRESH)
-    @JoinColumn(name = "item_id", nullable = false)
-    private Item item;              //вещь, которую бронируют
-
+    private LocalDateTime end;
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User booker;            //пользователь, который бронирует
-
+    @JoinColumn(name = "item_id", referencedColumnName = "id")
+    private Item item;
+    @ManyToOne
+    @JoinColumn(name = "booker_id", referencedColumnName = "id")
+    private User booker;
     @Enumerated(EnumType.STRING)
-    private BookingStatus status;   //статус бронирования
+    private Status status;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Booking booking = (Booking) o;
-        return Objects.equals(id, booking.id);
+    public static State getState(Booking booking) {
+        switch (booking.getStatus()) {
+            case REJECTED:
+            case CANCELLED:
+                return State.REJECTED;
+            case WAITING:
+            case APPROVED:
+                return chooseTime(booking);
+        }
+        return null;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
+    private static State chooseTime(Booking booking) {
+        if (booking.getStart().isAfter(LocalDateTime.now())) {
+            return State.FUTURE;
+        } else if (booking.getEnd().isBefore(LocalDateTime.now())) {
+            return State.PAST;
+        } else {
+            return State.CURRENT;
+        }
     }
 }

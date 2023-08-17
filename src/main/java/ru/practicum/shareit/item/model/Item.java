@@ -1,49 +1,37 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.Getter;
-import lombok.Setter;
-import ru.practicum.shareit.requests.ItemRequest;
-import ru.practicum.shareit.user.User;
+import lombok.*;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import java.util.Objects;
 
-@Getter
-@Setter
+/**
+ * TODO Sprint add-controllers.
+ */
 @Entity
 @Table(name = "items", schema = "public")
+@Getter
+@Setter
+@ToString
+@Builder
+@AllArgsConstructor
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "item_id")
     private Long id;
 
-    @Column(nullable = false)
-    private String name;            //краткое название
+    private String name;
 
-    @Column(nullable = false)
-    private String description;     //развёрнутое описание
+    private String description;
 
-    @Column(nullable = false)
-    private boolean available;      //доступна или нет вещь для аренды
-
+    private Boolean available;
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User owner;             //владелец вещи;
+    @JoinColumn(name = "owner_id")
+    private User owner;
+    @Column(name = "request_id")
+    private Long request;
 
-    @Transient
-    private ItemRequest request;    //если создано по запросу, то ссылка на запрос
+    public Item() {
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Item item = (Item) o;
-        return Objects.equals(id, item.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }
