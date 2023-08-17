@@ -53,7 +53,7 @@ public class ItemServiceImp implements ItemService {
         itemDto.setComments(CommentMapper.mapToCommentDto(comments));
 
         int ownerId = item.getOwner().getId();
-        if (Objects.equals(ownerId, userId)) {
+        if (ownerId == userId) {
             loadBookingDates(itemDto);
         }
 

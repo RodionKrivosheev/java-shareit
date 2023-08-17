@@ -61,7 +61,7 @@ public class BookingServiceImp implements BookingService {
         int bookerId = booking.getBooker().getId();
         int ownerId = booking.getItem().getOwner().getId();
 
-        if (!Objects.equals(userId, bookerId) && !Objects.equals(userId, ownerId)) {
+        if (!(userId == bookerId) && !(userId == ownerId)) {
             String message = "У пользователя " + userId + " нет прав на просмотр бронирования " + bookingId;
             log.warn(message);
             throw new PermissionException(message);
