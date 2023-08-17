@@ -3,59 +3,74 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.exception.EntityNotFoundException;
+import ru.practicum.shareit.exception.ErrorValidation;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import javax.validation.ValidationException;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Slf4j
+import static ru.practicum.shareit.user.UserMapper.*;
+
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    @Override
-    public List<UserDto> getAll() {
-        return userRepository.findAll().stream()
-                .map(UserMapper::toUserDto)
-                .collect(Collectors.toList());
+    public List<UserDto> getAllUsers() {
+        log.info("Получен список всех пользователей.");
+        return toUsersDto(userRepository.getAllUsers());
     }
 
-    @Transactional
-    @Override
-    public UserDto add(UserDto user) {
-        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(user)));
+    public UserDto saveUser(UserDto userDto) {
+        User user = toUser(userDto);
+        validateUser(user);
+        checkEmail(user);
+        log.info("Пользователь сохранен.");
+        return toUserDto(userRepository.saveUser(user));
     }
 
-    @Transactional
-    @Override
-    public UserDto update(UserDto user) {
-        User oldUser = UserMapper.toUser(getById(user.getId()));
-        if (user.getName() != null && !(user.getName().trim().isBlank())) {
-            oldUser.setName(user.getName());
+    public UserDto updateUser(UserDto userDto, int id) {
+        User userToUpdate = userRepository.getUserById(id);
+        User user = toUser(userDto);
+        if (user.getName() != null) {
+            userToUpdate.setName(user.getName());
         }
-        if (user.getEmail() != null && !(user.getEmail().trim().isBlank())) {
-            oldUser.setEmail(user.getEmail());
+        if (user.getEmail() != null) {
+            if (!userRepository.getUserById(id).getEmail().equals(user.getEmail())) {
+                checkEmail(user);
+            }
+            userToUpdate.setEmail(user.getEmail());
         }
-        return UserMapper.toUserDto(userRepository.save(oldUser));
+        log.info("Данные пользователя обновлены.");
+        return toUserDto(userRepository.updateUser(userToUpdate));
     }
 
-    @Transactional
     @Override
-    public void delete(long userId) {
-        userRepository.deleteById(userId);
+    public UserDto getUserById(int id) {
+        return toUserDto(userRepository.getUserById(id));
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public UserDto getById(long userId) {
-        return UserMapper.toUserDto(userRepository.findById(userId).orElseThrow(() ->
-                new EntityNotFoundException(String.format("Пользователь с id = %s не найден!", userId))));
+    public void deleteUser(int id) {
+        userRepository.deleteUser(id);
+        log.info("Пользователь удален.");
+    }
+
+    private void checkEmail(User user) {
+        for (User u : userRepository.getAllUsers()) {
+            if (user.getEmail().equals(u.getEmail())) {
+                throw new ErrorValidation("Пользователь с таким адресом электронной почты уже существует.");
+            }
+        }
+    }
+
+    private void validateUser(User user) {
+        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@") ||
+                user.getName().isBlank()) {
+            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @.");
+        }
     }
 }
