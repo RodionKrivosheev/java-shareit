@@ -1,38 +1,50 @@
 package ru.practicum.shareit.item;
 
-import lombok.experimental.UtilityClass;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@UtilityClass
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ItemMapper {
-
-    public static ItemDto toItemDto(Item item) {
+    public static ItemDto mapToItemDto(Item item) {
         return new ItemDto(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
-                item.getAvailable()
+                item.isAvailable(),
+                item.getOwner() != null ? item.getOwner().getId() : null,
+                item.getRequest() != null ? item.getRequest().getId() : null,
+                null,
+                null,
+                Collections.EMPTY_LIST
         );
     }
 
-    public static Item toItem(ItemDto itemDto, User owner) {
-        return new Item(
-                itemDto.getId(),
-                itemDto.getName(),
-                itemDto.getDescription(),
-                itemDto.getAvailable(),
-                owner
-        );
+    public static List<ItemDto> mapToItemDto(Iterable<Item> items) {
+        List<ItemDto> result = new ArrayList<>();
+
+        for (Item item : items) {
+            result.add(mapToItemDto(item));
+        }
+
+        return result;
     }
 
-    public static List<ItemDto> toItemsDto(List<Item> items) {
-        return items.stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+    public static Item mapToItem(User owner, ItemRequest request, ItemDto itemDto) {
+        Item item = new Item();
+        item.setId(itemDto.getId());
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+        item.setAvailable(itemDto.getAvailable());
+        item.setOwner(owner);
+        item.setRequest(request);
+        return item;
     }
 }
