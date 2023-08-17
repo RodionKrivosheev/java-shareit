@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.service;
+package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,10 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.PermissionException;
-import ru.practicum.shareit.exception.UserCommentException;
-import ru.practicum.shareit.item.ItemMapper;
+import ru.practicum.shareit.common.exception.NotFoundException;
+import ru.practicum.shareit.common.exception.PermissionException;
+import ru.practicum.shareit.common.exception.UserCommentException;
 import ru.practicum.shareit.item.comment.CommentMapper;
 import ru.practicum.shareit.item.comment.CommentRepository;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
@@ -19,10 +18,9 @@ import ru.practicum.shareit.item.dto.ItemBookingDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.PatchItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserMapper;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -39,21 +37,21 @@ public class ItemServiceImp implements ItemService {
 
     @Transactional
     @Override
-    public ItemDto saveItem(int userId, ItemDto itemDto) {
+    public ItemDto saveItem(Long userId, ItemDto itemDto) {
         User owner = UserMapper.mapToUser(userService.findById(userId));
         Item item = itemRepository.save(ItemMapper.mapToItem(owner, null, itemDto));
         return ItemMapper.mapToItemDto(item);
     }
 
     @Override
-    public ItemDto findByItemId(int userId, int itemId) {
+    public ItemDto findByItemId(Long userId, Long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> throwNotFoundException(itemId));
         ItemDto itemDto = ItemMapper.mapToItemDto(item);
         List<Comment> comments = commentRepository.findAllByItemId(itemId, Sort.by("id"));
         itemDto.setComments(CommentMapper.mapToCommentDto(comments));
 
-        int ownerId = item.getOwner().getId();
-        if (ownerId == userId) {
+        Long ownerId = item.getOwner().getId();
+        if (ownerId.equals(userId)) {
             loadBookingDates(itemDto);
         }
 
@@ -72,8 +70,8 @@ public class ItemServiceImp implements ItemService {
 
      private ItemBookingDto mapToItemBookingDto(Optional<Booking> booking) {
          if (booking.isPresent()) {
-             int id = booking.get().getId();
-             int bookerId = booking.get().getBooker().getId();
+             Long id = booking.get().getId();
+             Long bookerId = booking.get().getBooker().getId();
              LocalDateTime start = booking.get().getStart();
              LocalDateTime end = booking.get().getEnd();
              return new ItemBookingDto(id, bookerId, start, end);
@@ -82,7 +80,7 @@ public class ItemServiceImp implements ItemService {
     }
 
     @Override
-    public List<ItemDto> findAllByUserID(int userId) {
+    public List<ItemDto> findAllByUserID(Long userId) {
         userService.findById(userId);
         List<Item> items = itemRepository.findAllByOwnerId(userId);
         items.sort(Comparator.comparing(Item::getId));
@@ -103,7 +101,7 @@ public class ItemServiceImp implements ItemService {
 
     @Transactional
     @Override
-    public ItemDto update(int userId, int itemId, PatchItemDto patchItemDto) {
+    public ItemDto update(Long userId, Long itemId, PatchItemDto patchItemDto) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> throwNotFoundException(itemId));
         checkPermissions(userId, item);
 
@@ -122,7 +120,7 @@ public class ItemServiceImp implements ItemService {
 
     @Transactional
     @Override
-    public CommentDto createComment(int userId, int itemId, CommentDto commentDto) {
+    public CommentDto createComment(Long userId, Long itemId, CommentDto commentDto) {
         User author = UserMapper.mapToUser(userService.findById(userId));
         bookingRepository.findFirstByBookerAndItemIdAndEndBefore(author, itemId, LocalDateTime.now()).orElseThrow(
                 () -> throwUserCommentException(userId));
@@ -132,7 +130,7 @@ public class ItemServiceImp implements ItemService {
         return CommentMapper.mapToCommentDto(commentRepository.save(comment));
     }
 
-    public void checkPermissions(int userId, Item item) {
+    public void checkPermissions(Long userId, Item item) {
         if (!Objects.equals(userId, item.getOwner().getId())) {
             String message = "Пользователь с id " + userId + " не владелец предмета с id " + item.getId();
             log.warn(message);
@@ -140,13 +138,13 @@ public class ItemServiceImp implements ItemService {
         }
     }
 
-    private NotFoundException throwNotFoundException(int id) {
+    private NotFoundException throwNotFoundException(Long id) {
         String message = "Предмет с id " + id + " не найден!";
         log.warn(message);
         throw new NotFoundException(message);
     }
 
-    private NotFoundException throwUserCommentException(int id) {
+    private NotFoundException throwUserCommentException(Long id) {
         String message = "Пользователь с id " + id + "не имеет прав комментировать";
         log.warn(message);
         throw new UserCommentException(message);

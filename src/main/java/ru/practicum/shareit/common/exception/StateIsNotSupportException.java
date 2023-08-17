@@ -1,4 +1,4 @@
-package ru.practicum.shareit.exception;
+package ru.practicum.shareit.common.exception;
 
 public class StateIsNotSupportException extends RuntimeException {
     public StateIsNotSupportException(String message) {

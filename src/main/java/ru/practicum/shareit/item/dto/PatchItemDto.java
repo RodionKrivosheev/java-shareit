@@ -10,7 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PatchItemDto {
-    private String name;
-    private String description;
-    private Boolean available;
+    private String name;            //краткое название
+    private String description;     //развёрнутое описание
+    private Boolean available;      //доступна или нет вещь для аренды;
 }

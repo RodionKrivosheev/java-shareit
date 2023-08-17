@@ -5,21 +5,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.PostDto;
+import ru.practicum.shareit.booking.dto.PostBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.exception.*;
-import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.common.exception.*;
+import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserMapper;
-import ru.practicum.shareit.user.service.UserService;
+import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -33,10 +32,10 @@ public class BookingServiceImp implements BookingService {
 
     @Transactional
     @Override
-    public BookingDto create(int userId, PostDto postBookingDto) {
+    public BookingDto create(Long userId, PostBookingDto postBookingDto) {
         User booker = UserMapper.mapToUser(userService.findById(userId));
-        int bookerId = booker.getId();
-        int itemId = postBookingDto.getItemId();
+        Long bookerId = booker.getId();
+        Long itemId = postBookingDto.getItemId();
         Item item = itemRepository.findById(itemId).orElseThrow(() -> throwNotFoundItemException("Предмет с id " +
                 itemId + " не найден!"));
         checkItemAvailable(item);
@@ -44,7 +43,7 @@ public class BookingServiceImp implements BookingService {
         checkBookingDate(booking);
         checkBookingAvailable(booking);
 
-        if (Objects.equals(bookerId, item.getOwner().getId())) {
+        if (bookerId.equals(item.getOwner().getId())) {
             String message = "Предмет " + itemId + " не доступен для бронирования владельцем " + bookerId;
             log.warn(message);
             throw new PermissionException(message);
@@ -54,14 +53,14 @@ public class BookingServiceImp implements BookingService {
     }
 
     @Override
-    public BookingDto findById(int userId, int bookingId) {
+    public BookingDto findById(Long userId, Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> throwNotFoundItemException(
                 "Бронирование с id " + bookingId + " не найдено!"));
 
-        int bookerId = booking.getBooker().getId();
-        int ownerId = booking.getItem().getOwner().getId();
+        Long bookerId = booking.getBooker().getId();
+        Long ownerId = booking.getItem().getOwner().getId();
 
-        if (!(userId == bookerId) && !(userId == ownerId)) {
+        if (!userId.equals(bookerId) && !userId.equals(ownerId)) {
             String message = "У пользователя " + userId + " нет прав на просмотр бронирования " + bookingId;
             log.warn(message);
             throw new PermissionException(message);
@@ -70,7 +69,7 @@ public class BookingServiceImp implements BookingService {
     }
 
     @Override
-    public List<BookingDto> findUserBooking(int userId, String stateParam) {
+    public List<BookingDto> findUserBooking(Long userId, String stateParam) {
         BookingState state = stateToEnum(stateParam);
         userService.findById(userId);
         List<Booking> bookings;
@@ -103,7 +102,7 @@ public class BookingServiceImp implements BookingService {
     }
 
     @Override
-    public List<BookingDto> findItemBooking(int userId, String stateParam) {
+    public List<BookingDto> findItemBooking(Long userId, String stateParam) {
         BookingState state = stateToEnum(stateParam);
         userService.findById(userId);
         List<Booking> bookings;
@@ -137,7 +136,7 @@ public class BookingServiceImp implements BookingService {
 
     @Transactional
     @Override
-    public BookingDto approveBooking(int userId, int bookingId, Boolean approved) {
+    public BookingDto approveBooking(Long userId, Long bookingId, Boolean approved) {
         userService.findById(userId);
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> throwNotFoundItemException(
                 "Бронирование с id " + bookingId + " не найдено!"));
@@ -179,7 +178,7 @@ public class BookingServiceImp implements BookingService {
     }
 
     private void checkBookingAvailable(Booking booking) {
-        int itemId = booking.getItem().getId();
+        Long itemId = booking.getItem().getId();
         List<Booking> bookings = bookingRepository.findAllByDateAndId(itemId, booking.getStart(), booking.getEnd());
         if (bookings.size() != 0) {
             String message = "Товар " + itemId + " не доступен для бронирования";

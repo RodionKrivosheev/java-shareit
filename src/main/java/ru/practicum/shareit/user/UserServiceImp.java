@@ -1,16 +1,13 @@
-package ru.practicum.shareit.user.service;
+package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.UserAlreadyExistException;
-import ru.practicum.shareit.user.UserMapper;
+import ru.practicum.shareit.common.exception.NotFoundException;
+import ru.practicum.shareit.common.exception.UserAlreadyExistException;
 import ru.practicum.shareit.user.dto.PatchUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +27,7 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public UserDto findById(int id) {
+    public UserDto findById(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> throwNotFoundException(id));
         return UserMapper.mapToUserDto(user);
     }
@@ -43,7 +40,7 @@ public class UserServiceImp implements UserService {
 
     @Transactional
     @Override
-    public UserDto update(int id, PatchUserDto patchUserDto) {
+    public UserDto update(Long id, PatchUserDto patchUserDto) {
         User user = userRepository.findById(id).orElseThrow(() -> throwNotFoundException(id));
         if (patchUserDto.getName() != null) {
             user.setName(patchUserDto.getName());
@@ -58,7 +55,7 @@ public class UserServiceImp implements UserService {
 
     @Transactional
     @Override
-    public void delete(int id) {
+    public void delete(Long id) {
         Optional<User> user = userRepository.findById(id);
         user.ifPresent(userRepository::delete);
     }
@@ -71,7 +68,7 @@ public class UserServiceImp implements UserService {
         }
     }
 
-    private NotFoundException throwNotFoundException(int id) {
+    private NotFoundException throwNotFoundException(Long id) {
         String message = "Пользователь с id " + id + " не найден!.";
         log.warn(message);
         return new NotFoundException(message);

@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.PatchUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -21,7 +20,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public UserDto findById(@PathVariable int id) {
+    public UserDto findById(@PathVariable Long id) {
         return userService.findById(id);
     }
 
@@ -31,12 +30,12 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public UserDto update(@PathVariable int id, @Valid @RequestBody PatchUserDto user) {
+    public UserDto update(@PathVariable Long id, @Valid @RequestBody PatchUserDto user) {
         return userService.update(id, user);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable int id) {
+    public void delete(@PathVariable Long id) {
         userService.delete(id);
     }
 }

@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommentDto {
-    private  int id;
+    private  Long id;
     @NotBlank
     private  String text;           //содержимое комментария;
     private String authorName;      //автор комментария;

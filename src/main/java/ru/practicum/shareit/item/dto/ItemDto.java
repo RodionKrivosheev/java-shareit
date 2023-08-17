@@ -15,16 +15,16 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemDto {
-    private int id;
+    private Long id;
     @NotBlank
-    private String name;
+    private String name;                //краткое название
     @NotBlank
-    private String description;
+    private String description;         //развёрнутое описание
     @NotNull
-    private Boolean available;
-    private int owner;
-    private int request;
-    private ItemBookingDto lastBooking;
-    private ItemBookingDto nextBooking;
-    private List<CommentDto> comments;
+    private Boolean available;          //доступна или нет вещь для аренды
+    private Long owner;                 //владелец вещи;
+    private Long request;               //если создано по запросу, то ссылка на запрос
+    private ItemBookingDto lastBooking; //последнее бронирование
+    private ItemBookingDto nextBooking; //следующего бронирования
+    private List<CommentDto> comments;  //комментарий арендатора
 }

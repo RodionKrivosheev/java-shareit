@@ -1,6 +1,6 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.requests;
 
-import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.requests.dto.ItemRequestDto;
 
 public interface ItemRequestService {
 
