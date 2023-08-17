@@ -103,7 +103,7 @@ public class ItemServiceImp implements ItemService {
 
     @Transactional
     @Override
-    public ItemDto updateItem(int userId, int itemId, PatchItemDto patchItemDto) {
+    public ItemDto update(int userId, int itemId, PatchItemDto patchItemDto) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> throwNotFoundException(itemId));
         checkPermissions(userId, item);
 

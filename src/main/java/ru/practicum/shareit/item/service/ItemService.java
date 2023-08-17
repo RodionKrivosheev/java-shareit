@@ -16,7 +16,7 @@ public interface ItemService {
 
     List<ItemDto> search(String text);
 
-    ItemDto updateItem(int userId, int itemId, PatchItemDto patchItemDto);
+    ItemDto update(int userId, int itemId, PatchItemDto patchItemDto);
 
     void checkPermissions(int userId, Item item);
 

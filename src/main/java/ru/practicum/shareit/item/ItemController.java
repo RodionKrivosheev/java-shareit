@@ -43,7 +43,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ItemDto update(@RequestHeader(userIdMapping) int userId, @PathVariable int itemId,
                           @Valid @RequestBody PatchItemDto item) {
-        return itemService.updateItem(userId, itemId, item);
+        return itemService.update(userId, itemId, item);
     }
 
     @PostMapping("/{itemId}/comment")
