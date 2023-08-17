@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-<<<<<<< HEAD
-=======
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -15,7 +13,6 @@ import ru.practicum.shareit.exception.UserNotFoundException;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.comment.repository.CommentRepository;
->>>>>>> fa10711 (commit 1)
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -23,14 +20,9 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import javax.validation.ValidationException;
-<<<<<<< HEAD
-import java.util.ArrayList;
-import java.util.List;
-=======
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
->>>>>>> fa10711 (commit 1)
 
 import static ru.practicum.shareit.booking.model.Status.APPROVED;
 import static ru.practicum.shareit.item.ItemMapper.*;
@@ -45,10 +37,6 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
-
-    public ItemRepository getItemRepository() {
-        return itemRepository;
-    }
 
     @Override
     public ItemDto saveItem(ItemDto itemDto, Long userId) {
@@ -106,11 +94,7 @@ public class ItemServiceImpl implements ItemService {
         List<ItemDto> itemsDto = this.setBookings(items);
         this.setComments(itemsDto);
         log.info("Получен список всех вещей пользователя.");
-<<<<<<< HEAD
-        return itemRepository.getItemByUserId(userId);
-=======
         return itemsDto;
->>>>>>> fa10711 (commit 1)
     }
 
     @Override
