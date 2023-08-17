@@ -1,71 +1,73 @@
 package ru.practicum.shareit.exception;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Map;
+import javax.validation.ConstraintViolationException;
 
-@RestControllerAdvice("ru.practicum.shareit")
+@Slf4j
+@RestControllerAdvice
 public class ErrorHandler {
+
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleValidationException(final AuthOwnerException e) {
-        return Map.of("error", e.getMessage());
+    public ResponseEntity<String> exc(ConstraintViolationException ex) {
+        log.info("ConstraintViolationException. Произошла ошибка {}, статус ошибки {}", ex.getMessage(),
+                HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> handleDuplicateException(final DuplicateUserException e) {
-        return Map.of("error", e.getMessage());
+    public ResponseEntity<String> handleIncorrectParameterException(final IncorrectParameterException e) {
+        log.info("IncorrectParameterException. Произошла ошибка с полем {}, статус ошибки {}", e.getParameter(),
+                HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(String.format("Ошибка с полем \"%s\".", e.getParameter()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleNullPointerException(final NullPointerException e) {
-        return Map.of("error", e.getMessage());
+    public ResponseEntity<String> handleValidationException(final ValidationException e) {
+        log.info("ValidationException. Произошла ошибка {}, статус ошибки {}", e.getMessage(),
+                HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleNotFoundUserException(final NotFoundUserException e) {
-        return Map.of("error", e.getMessage());
+    public ResponseEntity<String> handleEntityNotFoundException(final EntityNotFoundException e) {
+        log.info("EntityNotFoundException. Произошла ошибка {}, статус ошибки {}", e.getMessage(),
+                HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleEmptyPointerException(final EmptyPointerException e) {
-        return Map.of("error", e.getMessage());
+    public ResponseEntity<String> handleUserAlreadyExistException(final UserAlreadyExistException e) {
+        log.info("UserAlreadyExistException. Произошла ошибка {}, статус ошибки {}", e.getMessage(),
+                HttpStatus.CONFLICT);
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleNotFoundItemException(final NotFoundItemException e) {
-        return Map.of("error", e.getMessage());
+    protected ResponseEntity<String> handleMethodArgumentNotValid(final MethodArgumentNotValidException e) {
+        log.info("MethodArgumentNotValidException. Произошла ошибка {}, статус ошибки {}", e.getMessage(),
+                HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleNotFoundBookingException(final NotFoundBookingException e) {
-        return Map.of("error", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleIncorrectTimeException(final IncorrectTimeException e) {
-        return Map.of("error", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleUnsupportedStatusException(final UnsupportedStatusException e) {
-        return Map.of("error", e.getMessage());
+    public ResponseEntity<String> handleThrowable(final Throwable e) {
+        log.info("Throwable. Произошла ошибка {}, статус ошибки {}", e.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>("Произошла непредвиденная ошибка.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleIllegalArgumentException(final IllegalArgumentException e) {
-        return Map.of("error", "Unknown state: UNSUPPORTED_STATUS");
+    public ErrorResponse handleBookingStateException(final BookingStateException e) {
+        log.info("BookingStateException. Произошла ошибка {}, статус ошибки {}", e.getMessage(),
+                HttpStatus.BAD_REQUEST);
+        return new ErrorResponse("Unknown state: UNSUPPORTED_STATUS", e.getMessage());
     }
 }

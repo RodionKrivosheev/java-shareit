@@ -2,16 +2,20 @@ package ru.practicum.shareit.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import ru.practicum.shareit.common.Create;
+import ru.practicum.shareit.common.Update;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 
 @Data
-@RequiredArgsConstructor
 @AllArgsConstructor
 public class UserDto {
+
     private long id;
+    @NotBlank(groups = {Create.class}, message = "Имя должно быть указано!")
     private String name;
-    @Email
+    @NotBlank(groups = {Create.class}, message = "Email должен быть указан!")
+    @Email(groups = {Create.class, Update.class})
     private String email;
 }

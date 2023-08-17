@@ -1,77 +1,61 @@
 package ru.practicum.shareit.user.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.NotFoundItemException;
-import ru.practicum.shareit.user.dao.JpaUserRepository;
-import ru.practicum.shareit.exception.DuplicateUserException;
-import ru.practicum.shareit.user.mapper.UserMapper;
-import ru.practicum.shareit.user.model.User;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.EntityNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static ru.practicum.shareit.constant.Constant.EMAIL_ALREADY_REGISTERED_MSG;
-import static ru.practicum.shareit.constant.Constant.NOT_FOUND_USER_ID;
-
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final JpaUserRepository userRepository;
-    private final UserMapper userMapper;
 
-    @Autowired
-    public UserServiceImpl(JpaUserRepository userRepository, UserMapper userMapper) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-    }
-
-    @Override
-    public UserDto createUser(UserDto userDto) {
-        User newUser = userMapper.toNewEntity(userDto);
-        return userMapper.toDto(userRepository.save(newUser));
-    }
-
-    @Override
-    public UserDto findUser(Long id) {
-        Optional<User> user = userRepository.findById(id);
-        if (user.isPresent()) {
-            return userMapper.toDto(user.get());
-        } else throw new NotFoundItemException(NOT_FOUND_USER_ID);
-    }
+    private final UserRepository userRepository;
 
     @Override
     public List<UserDto> getAll() {
-        List<UserDto> usersDto = new ArrayList<>();
-        List<User> users = userRepository.findAll();
-        for (User user : users) {
-            usersDto.add(userMapper.toDto(user));
-        }
-        return usersDto;
+        return userRepository.findAll().stream()
+                .map(UserMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
-    public UserDto updateUser(UserDto userDto, Long id) {
-        User user = userMapper.toEntity(userDto, id);
-        if (Objects.nonNull(userDto.getEmail())) {
-            checkEmailDuplicate(user);
-        }
-        return userMapper.toDto(userRepository.save(user));
+    public UserDto add(UserDto user) {
+        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(user)));
     }
 
+    @Transactional
     @Override
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+    public UserDto update(UserDto user) {
+        User oldUser = UserMapper.toUser(getById(user.getId()));
+        if (user.getName() != null && !(user.getName().trim().isBlank())) {
+            oldUser.setName(user.getName());
+        }
+        if (user.getEmail() != null && !(user.getEmail().trim().isBlank())) {
+            oldUser.setEmail(user.getEmail());
+        }
+        return UserMapper.toUserDto(userRepository.save(oldUser));
     }
 
-    private void checkEmailDuplicate(User checkedUser) {
-        List<User> users = userRepository.findAll();
-        for (User user : users) {
-            if (user.getEmail().equals(checkedUser.getEmail()) && user.getId() != checkedUser.getId()) {
-                throw new DuplicateUserException(EMAIL_ALREADY_REGISTERED_MSG);
-            }
-        }
+    @Transactional
+    @Override
+    public void delete(long userId) {
+        userRepository.deleteById(userId);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public UserDto getById(long userId) {
+        return UserMapper.toUserDto(userRepository.findById(userId).orElseThrow(() ->
+                new EntityNotFoundException(String.format("Пользователь с id = %s не найден!", userId))));
     }
 }
