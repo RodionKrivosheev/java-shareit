@@ -20,18 +20,18 @@ public class Comment {
     private  Long id;
 
     @Column(nullable = false)
-    private  String text;
+    private  String text;           //содержимое комментария;
 
     @ManyToOne(cascade = CascadeType.REFRESH)
     @JoinColumn(name = "item_id", nullable = false)
-    private Item item;
+    private Item item;              //вещь, к которой относится комментарий;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User author;
+    private User author;            //автор комментария;
 
     @Column(nullable = false)
-    private LocalDateTime created;
+    private LocalDateTime created;  //дата создания
 
     @Override
     public boolean equals(Object o) {

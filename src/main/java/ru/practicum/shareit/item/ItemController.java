@@ -15,13 +15,10 @@ import java.util.List;
 public class ItemController {
     private final ItemService itemService;
 
-    public final String userIdMapping = "X-Sharer-User-Id";
-
-
     @PostMapping
     public ItemDto create(@RequestHeader("X-Sharer-User-Id") Long userId,
                           @Valid @RequestBody ItemDto item) {
-        return itemService.saveItem(userId, item);
+        return itemService.create(userId, item);
     }
 
     @GetMapping("/{itemId}")

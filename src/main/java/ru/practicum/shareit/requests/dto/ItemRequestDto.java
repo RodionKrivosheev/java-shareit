@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Setter
 public class ItemRequestDto {
     private Long id;
-    private String description;
-    private UserDto requestor;
-    private LocalDateTime create;
+    private String description;    //описание вещи;
+    private UserDto requestor;     //пользователь, создавший запрос
+    private LocalDateTime create;  //дата и время создания запроса
 }

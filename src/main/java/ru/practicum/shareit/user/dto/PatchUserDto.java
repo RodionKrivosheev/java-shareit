@@ -8,7 +8,7 @@ import javax.validation.constraints.Email;
 @Getter
 @Setter
 public class PatchUserDto {
-    private String name;
+    private String name;        //имя или логин пользователя;
     @Email
-    private String email;
+    private String email;       //адрес электронной почты (уникален)
 }

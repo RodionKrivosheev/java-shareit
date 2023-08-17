@@ -37,7 +37,7 @@ public class ItemServiceImp implements ItemService {
 
     @Transactional
     @Override
-    public ItemDto saveItem(Long userId, ItemDto itemDto) {
+    public ItemDto create(Long userId, ItemDto itemDto) {
         User owner = UserMapper.mapToUser(userService.findById(userId));
         Item item = itemRepository.save(ItemMapper.mapToItem(owner, null, itemDto));
         return ItemMapper.mapToItemDto(item);
@@ -81,7 +81,7 @@ public class ItemServiceImp implements ItemService {
 
     @Override
     public List<ItemDto> findAllByUserID(Long userId) {
-        userService.findById(userId);
+        userService.findById(userId);   //исключение, если пользователь не найден
         List<Item> items = itemRepository.findAllByOwnerId(userId);
         items.sort(Comparator.comparing(Item::getId));
         List<ItemDto> dtoItems = ItemMapper.mapToItemDto(items);

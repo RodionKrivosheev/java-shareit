@@ -11,8 +11,8 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class UserDto {
     private Long id;
-    private String name;
+    private String name;        //имя или логин пользователя;
     @Email
     @NotBlank
-    private String email;
+    private String email;       //адрес электронной почты (уникален)
 }

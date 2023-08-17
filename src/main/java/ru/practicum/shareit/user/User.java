@@ -17,10 +17,10 @@ public class User {
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String name;        //имя или логин пользователя;
 
     @Column(nullable = false)
-    private String email;
+    private String email;       //адрес электронной почты (уникален)
 
     @Override
     public boolean equals(Object o) {
