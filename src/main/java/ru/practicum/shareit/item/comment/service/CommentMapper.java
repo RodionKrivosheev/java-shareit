@@ -9,9 +9,8 @@ import ru.practicum.shareit.user.model.User;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-@UtilityClass
 public class CommentMapper {
-    public CommentDto toCommentDto(Comment comment) {
+    public static CommentDto toCommentDto(Comment comment) {
         return CommentDto.builder()
                 .id(comment.getId())
                 .text(comment.getText())
@@ -20,7 +19,7 @@ public class CommentMapper {
                 .build();
     }
 
-    public Comment toComment(CommentDto commentDto, User user, Item item) {
+    public static Comment toComment(CommentDto commentDto, User user, Item item) {
         return Comment.builder()
                 .id(commentDto.getId())
                 .text(commentDto.getText())
@@ -30,7 +29,7 @@ public class CommentMapper {
                 .build();
     }
 
-    public List<CommentDto> toCommentsDto(List<Comment> comments) {
+    public static List<CommentDto> toCommentsDto(List<Comment> comments) {
         return comments.stream()
                 .map(CommentMapper::toCommentDto)
                 .collect(Collectors.toList());
