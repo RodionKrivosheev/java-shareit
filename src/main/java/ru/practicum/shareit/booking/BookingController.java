@@ -1,12 +1,48 @@
 package ru.practicum.shareit.booking;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
+import ru.practicum.shareit.booking.service.BookingService;
 
-/**
- * TODO Sprint add-bookings.
- */
+import javax.validation.Valid;
+import java.util.List;
+
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(path = "/bookings")
 public class BookingController {
+
+    private final BookingService bookingService;
+
+    private final String sharerUserId = "X-Sharer-User-Id";
+
+    @PostMapping
+    BookingDto saveBooking(@RequestHeader(sharerUserId) Long userId, @RequestBody @Valid BookingRequestDto bookingDto) {
+        return bookingService.saveBooking(bookingDto, userId);
+    }
+
+    @PatchMapping("/{bookingId}")
+    public BookingDto updateBooking(@RequestHeader(sharerUserId) Long userId, @PathVariable Long bookingId,
+                                    @RequestParam Boolean approved) {
+        return bookingService.updateBooking(userId, bookingId, approved);
+    }
+
+    @GetMapping("/{bookingId}")
+    public BookingDto getById(@RequestHeader(sharerUserId) Long userId, @PathVariable Long bookingId) {
+        return bookingService.getById(userId, bookingId);
+    }
+
+    @GetMapping
+    public List<BookingDto> getAllByBooker(@RequestHeader(sharerUserId) Long userId,
+                                           @RequestParam(defaultValue = "ALL") String state) {
+        return bookingService.getAllByBooker(userId, state);
+    }
+
+    @GetMapping("/owner")
+    public List<BookingDto> getAllByOwner(@RequestHeader(sharerUserId) Long userId,
+                                          @RequestParam(defaultValue = "ALL") String state) {
+        return bookingService.getAllByOwner(userId, state);
+    }
 }
