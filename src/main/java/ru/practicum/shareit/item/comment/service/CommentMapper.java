@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class CommentMapper {
+
     public static CommentDto toCommentDto(Comment comment) {
         return CommentDto.builder()
                 .id(comment.getId())
@@ -23,8 +24,8 @@ public class CommentMapper {
         return Comment.builder()
                 .id(commentDto.getId())
                 .text(commentDto.getText())
-                .item(item)
                 .author(user)
+                .item(item)
                 .created(LocalDateTime.now())
                 .build();
     }

@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.error.exception.BadRequestException;
+import ru.practicum.shareit.error.exception.NotFoundException;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.comment.repository.CommentRepository;
@@ -14,11 +14,11 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+
 import java.time.LocalDateTime;
 
 import static ru.practicum.shareit.booking.constant.Status.APPROVED;
-import static ru.practicum.shareit.item.comment.service.CommentMapper.toComment;
-import static ru.practicum.shareit.item.comment.service.CommentMapper.toCommentDto;
+import static ru.practicum.shareit.item.comment.service.CommentMapper.*;
 
 @Service
 @Slf4j
@@ -37,7 +37,7 @@ public class CommentServiceImpl implements CommentService {
 
         if (bookingRepository.findAllByBookerIdAndItemIdAndStatusEqualsAndEndIsBefore(userId, itemId, APPROVED,
                 LocalDateTime.now()).isEmpty()) {
-            throw new ValidationException("Невозможно добавить комментарий.");
+            throw new BadRequestException("Невозможно добавить комментарий.");
         }
 
         Comment comment = toComment(commentDto, user, item);
@@ -54,5 +54,4 @@ public class CommentServiceImpl implements CommentService {
         return itemRepository.findById(itemId).orElseThrow(() ->
                 new NotFoundException("Неверный ID."));
     }
-
 }

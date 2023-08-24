@@ -11,14 +11,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class BookingMapper {
+
     public static BookingDto toBookingDto(Booking booking) {
         return BookingDto.builder()
                 .id(booking.getId())
                 .start(booking.getStart())
                 .end(booking.getEnd())
-                .booker(new BookingDto.User(booking.getBooker().getId(), booking.getBooker().getName()))
+                .booker(booking.getBooker())
                 .status(booking.getStatus())
-                .item(new BookingDto.ItemShortDto(booking.getItem().getId(), booking.getItem().getName()))
+                .item(booking.getItem())
                 .build();
     }
 
@@ -31,13 +32,12 @@ public class BookingMapper {
                 .build();
     }
 
-
     public static BookingShortDto toBookingShortDto(Booking booking) {
         return BookingShortDto.builder()
                 .id(booking.getId())
+                .bookerId(booking.getBooker().getId())
                 .start(booking.getStart())
                 .end(booking.getEnd())
-                .bookerId(booking.getBooker().getId())
                 .status(booking.getStatus())
                 .build();
     }
