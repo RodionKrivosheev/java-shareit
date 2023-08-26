@@ -1,21 +1,21 @@
 package ru.practicum.shareit.request;
 
+
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.practicum.shareit.error.exception.NotFoundException;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -137,3 +137,4 @@ public class ItemRequestServiceImplTest {
         assertThat(requests.get(0).getDescription(), equalTo("запрос"));
     }
 }
+

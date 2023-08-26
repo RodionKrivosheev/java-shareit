@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ import java.time.LocalDateTime;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static ru.practicum.shareit.booking.constant.Status.APPROVED;
-import static ru.practicum.shareit.booking.constant.Status.WAITING;
+import static ru.practicum.shareit.booking.model.Status.APPROVED;
+import static ru.practicum.shareit.booking.model.Status.WAITING;
 
 @DataJpaTest
 public class BookingRepositoryTest {

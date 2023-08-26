@@ -35,3 +35,4 @@ public class BookingJsonTest {
                 .isEqualTo(LocalDateTime.of(2022, 5, 10, 10, 30, 15).toString());
     }
 }
+

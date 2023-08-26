@@ -14,14 +14,13 @@ import java.time.LocalDateTime;
 @Builder
 @Table(name = "requests")
 public class ItemRequest {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Long id;
     @Column(nullable = false)
     private String description;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "requestor_id")
     private User requestor;
     @Column(nullable = false)

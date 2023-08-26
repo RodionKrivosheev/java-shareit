@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebM
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.error.exception.NotFoundException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -16,6 +17,7 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -130,11 +132,11 @@ public class UserControllerTest {
     @Test
     void testGetUserByIdAndStatus404() throws Exception {
         when(service.getUserById(20L))
-                .thenThrow(new NotFoundException("Пользователь не найден!"));
+                .thenThrow(new NotFoundException("Validation error 404"));
 
         mvc.perform(get("/users/{id}", 20))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error", is("Пользователь не найден!")));
+                .andExpect(jsonPath("$.error", is("Validation error 404")));
 
         verify(service, times(1)).getUserById(20L);
     }

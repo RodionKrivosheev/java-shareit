@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,8 +12,9 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.error.exception.BadRequestException;
-import ru.practicum.shareit.error.exception.NotFoundException;
+import ru.practicum.shareit.exception.BookingValidationException;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationExceptionHandler;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -20,14 +22,13 @@ import ru.practicum.shareit.user.service.UserService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static ru.practicum.shareit.booking.constant.Status.*;
+import static ru.practicum.shareit.booking.model.Status.WAITING;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -117,7 +118,7 @@ public class BookingServiceImplTest {
     void testSaveBookingValidationData() {
         bookingRequestDto.setStart(timestamp2);
         bookingRequestDto.setEnd(timestamp1);
-        ValidationException e = assertThrows(ValidationException.class,
+        ValidationExceptionHandler e = assertThrows(ValidationExceptionHandler.class,
                 () -> bookingService.saveBooking(bookingRequestDto, 2L));
 
         assertThat(e.getMessage(), equalTo("Неверные даты"));
@@ -215,7 +216,7 @@ public class BookingServiceImplTest {
     void testGetAllByBookerFailByWrongState() {
         bookingService.saveBooking(bookingRequestDto, 2L);
 
-        BadRequestException e = assertThrows(BadRequestException.class,
+        BookingValidationException e = assertThrows(BookingValidationException.class,
                 () -> bookingService.getAllByBooker(2L, "FUTUR", 0, 2));
         assertThat(e.getMessage(), equalTo("Unknown state: FUTUR"));
     }
@@ -288,7 +289,7 @@ public class BookingServiceImplTest {
     void testGetAllByOwnerFailByWrongState() {
         bookingService.saveBooking(bookingRequestDto, 2L);
 
-        BadRequestException e = assertThrows(BadRequestException.class,
+        BookingValidationException e = assertThrows(BookingValidationException.class,
                 () -> bookingService.getAllByOwner(2L, "FUTUR", 0, 2));
         assertThat(e.getMessage(), equalTo("Unknown state: FUTUR"));
     }

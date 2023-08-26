@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request;
 
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,8 +12,8 @@ import ru.practicum.shareit.user.model.User;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static ru.practicum.shareit.request.ItemRequestMapper.toItemRequestDto;
-import static ru.practicum.shareit.request.ItemRequestMapper.toItemRequestsDto;
+import static ru.practicum.shareit.request.service.ItemRequestMapper.toItemRequestDto;
+import static ru.practicum.shareit.request.service.ItemRequestMapper.toItemRequestsDto;
 
 @SpringBootTest
 public class ItemRequestMapperTest {

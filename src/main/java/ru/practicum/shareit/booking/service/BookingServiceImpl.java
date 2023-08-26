@@ -10,30 +10,29 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.error.exception.BadRequestException;
-import ru.practicum.shareit.error.exception.NotFoundException;
+import ru.practicum.shareit.exception.BookingValidationException;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationExceptionHandler;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static ru.practicum.shareit.booking.BookingMapper.*;
-import static ru.practicum.shareit.booking.constant.Status.*;
+import static ru.practicum.shareit.booking.model.Status.*;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
-
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
 
-    private final Sort sort = Sort.by(Sort.Direction.DESC, "end");
+    private final Sort sort = Sort.by(Sort.Direction.DESC, "start");
 
     @Override
     public BookingDto saveBooking(BookingRequestDto bookingDto, Long userId) {
@@ -45,19 +44,12 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("Невозможно забронировать собственную вещь.");
         }
         if (!item.getAvailable()) {
-            throw new BadRequestException("Вещь уже забронирована!");
+            throw new ValidationExceptionHandler("Вещь уже забронирована!");
         }
 
         validationData(bookingDto.getStart(), bookingDto.getEnd());
 
         Booking booking = toBooking(bookingDto, user, item);
-
-        List<Booking> bookings = bookingRepository.findBookingsByItem(item);
-        for (Booking b : bookings) {
-            if (booking.getStart().isBefore(b.getEnd())) {
-                throw new BadRequestException("Вещь уже забронирована!");
-            }
-        }
 
         booking.setStatus(WAITING);
         log.info("Бронирование добавлено.");
@@ -72,7 +64,7 @@ public class BookingServiceImpl implements BookingService {
             throw new NotFoundException("Невозможно изменить бронирование.");
         }
         if (!booking.getStatus().equals(WAITING)) {
-            throw new BadRequestException("Невозможно изменить статус бронирования.");
+            throw new ValidationExceptionHandler("Невозможно изменить статус бронирования.");
         }
         if (approved) {
             booking.setStatus(APPROVED);
@@ -100,17 +92,18 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findAllByBookerIdAndStartAfterOrderByIdDesc(userId, LocalDateTime.now(), page);
                 break;
             case "CURRENT":
-                bookings = bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByIdDesc(userId,
-                        LocalDateTime.now(), LocalDateTime.now(), page);
+                bookings = bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderById(userId,
+                        LocalDateTime.now(),
+                        LocalDateTime.now(), page);
                 break;
             case "WAITING":
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByIdDesc(userId, WAITING, page);
+                bookings = bookingRepository.findAllByBookerIdAndStatusOrderById(userId, WAITING, page);
                 break;
             case "REJECTED":
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByIdDesc(userId, REJECTED, page);
+                bookings = bookingRepository.findAllByBookerIdAndStatusOrderById(userId, REJECTED, page);
                 break;
             default:
-                throw new BadRequestException("Unknown state: " + state);
+                throw new BookingValidationException("Unknown state: " + state);
         }
         return toBookingsDto(bookings);
     }
@@ -126,6 +119,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getAllByOwner(Long userId, String state, int from, int size) {
+        if (from < 0) {
+            throw new BookingValidationException("Число не может быть отрицательным");
+        }
         getUser(userId);
 
         List<Booking> bookings;
@@ -142,7 +138,8 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case "CURRENT":
                 bookings = bookingRepository.findBookingsByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(userId,
-                        LocalDateTime.now(), LocalDateTime.now(), page);
+                        LocalDateTime.now(),
+                        LocalDateTime.now(), page);
                 break;
             case "WAITING":
                 bookings = bookingRepository.findBookingsByItem_Owner_IdAndStatusEquals(userId, WAITING, page);
@@ -151,7 +148,7 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findBookingsByItem_Owner_IdAndStatusEquals(userId, REJECTED, page);
                 break;
             default:
-                throw new BadRequestException("Unknown state: " + state);
+                throw new BookingValidationException("Unknown state: " + state);
         }
         return toBookingsDto(bookings);
     }
@@ -173,8 +170,7 @@ public class BookingServiceImpl implements BookingService {
 
     private void validationData(LocalDateTime start, LocalDateTime end) {
         if (!start.isBefore(end)) {
-            throw new ValidationException("Неверные даты");
+            throw new ValidationExceptionHandler("Неверные даты");
         }
     }
 }
-

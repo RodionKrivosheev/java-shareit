@@ -8,10 +8,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebM
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.error.exception.NotFoundException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
+import ru.practicum.shareit.request.controller.ItemRequestController;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,7 +20,8 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -81,7 +83,7 @@ public class ItemRequestControllerTest {
     @Test
     void testSaveItemRequestWrongUserAndStatus404() throws Exception {
         when(itemRequestService.saveItemRequest(any(), anyLong()))
-                .thenThrow(new NotFoundException("Not found exception"));
+                .thenThrow(new NotFoundException("Validation error 404"));
 
         mvc.perform(post("/requests")
                         .content(mapper.writeValueAsString(itemRequestDto))
@@ -90,7 +92,7 @@ public class ItemRequestControllerTest {
                         .accept(APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error", is("Not found exception")));
+                .andExpect(jsonPath("$.error", is("Validation error 404")));
     }
 
     @Test
@@ -120,12 +122,12 @@ public class ItemRequestControllerTest {
     @Test
     void testGetAllByUserIdWithWrongIdWith404() throws Exception {
         when(itemRequestService.getAllByUserId(anyLong()))
-                .thenThrow(new NotFoundException("Not found exception"));
+                .thenThrow(new NotFoundException("Validation error 404"));
 
         mvc.perform(get("/requests")
                         .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error", is("Not found exception")));
+                .andExpect(jsonPath("$.error", is("Validation error 404")));
     }
 
     @Test
@@ -168,11 +170,11 @@ public class ItemRequestControllerTest {
     @Test
     void testGetRequestByWithStatus404() throws Exception {
         when(itemRequestService.getRequestById(anyLong(), anyLong()))
-                .thenThrow(new NotFoundException("Not found exception"));
+                .thenThrow(new NotFoundException("Validation error 404"));
 
         mvc.perform(get("/requests/{id}", 20)
                         .header("X-Sharer-User-Id", 20L))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error", is("Not found exception")));
+                .andExpect(jsonPath("$.error", is("Validation error 404")));
     }
 }

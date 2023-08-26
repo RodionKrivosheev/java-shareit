@@ -3,7 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.error.exception.NotFoundException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -20,13 +20,11 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    @Override
     public List<UserDto> getAllUsers() {
         log.info("Получен список всех пользователей.");
         return toUsersDto(userRepository.findAll());
     }
 
-    @Override
     public UserDto saveUser(UserDto userDto) {
         User user = toUser(userDto);
         validateUser(user);
@@ -34,14 +32,13 @@ public class UserServiceImpl implements UserService {
         return toUserDto(userRepository.save(user));
     }
 
-    @Override
     public UserDto updateUser(UserDto userDto, Long id) {
         User userToUpdate = getUser(id);
         User user = toUser(userDto);
-        if (user.getName() != null) {
+        if (user.getName() != null && !user.getName().isBlank()) {
             userToUpdate.setName(user.getName());
         }
-        if (user.getEmail() != null) {
+        if (user.getEmail() != null && !user.getEmail().isBlank()) {
             userToUpdate.setEmail(user.getEmail());
         }
         log.info("Данные пользователя обновлены.");
@@ -63,9 +60,10 @@ public class UserServiceImpl implements UserService {
                 new NotFoundException("Неверный ID пользователя."));
     }
 
+
     private void validateUser(User user) {
         if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@") ||
-                user.getName() == null || user.getName().isBlank()) {
+                user.getName().isBlank()) {
             throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @.");
         }
     }

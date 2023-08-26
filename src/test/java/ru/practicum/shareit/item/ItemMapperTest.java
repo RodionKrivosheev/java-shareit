@@ -8,6 +8,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemShortDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.user.model.User;
 
 @SpringBootTest
 public class ItemMapperTest {
@@ -31,6 +32,7 @@ public class ItemMapperTest {
                 .name("Дрель")
                 .description("дрель аккамуляторная")
                 .available(true)
+                .owner(User.builder().build())
                 .request(itemRequest)
                 .build();
 
@@ -46,6 +48,7 @@ public class ItemMapperTest {
         Assertions.assertEquals(item.getName(), itemDto.getName());
         Assertions.assertEquals(item.getDescription(), itemDto.getDescription());
         Assertions.assertEquals(item.getAvailable(), itemDto.getAvailable());
+        Assertions.assertEquals(item.getRequest().getId(), itemDto.getRequestId());
     }
 
     @Test
@@ -57,3 +60,4 @@ public class ItemMapperTest {
         Assertions.assertEquals(item.getAvailable(), itemShortDto.getAvailable());
     }
 }
+

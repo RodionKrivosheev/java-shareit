@@ -9,11 +9,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.error.exception.BadRequestException;
-import ru.practicum.shareit.error.exception.NotFoundException;
+import ru.practicum.shareit.exception.BadRequestExceptionHandler;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.comment.service.CommentService;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.nio.charset.StandardCharsets;
@@ -22,7 +22,8 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -79,7 +80,7 @@ public class ItemControllerTest {
     @Test
     void testSaveItemWithWrongUserAndStatus404() throws Exception {
         when(itemService.saveItem(any(), anyLong()))
-                .thenThrow(new NotFoundException("Пользователь не найден!"));
+                .thenThrow(new NotFoundException("Validation error 404"));
 
         mvc.perform(post("/items")
                         .content(mapper.writeValueAsString(itemDto))
@@ -88,7 +89,7 @@ public class ItemControllerTest {
                         .accept(APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 10L))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error", is("Пользователь не найден!")));
+                .andExpect(jsonPath("$.error", is("Validation error 404")));
     }
 
     @Test
@@ -149,7 +150,7 @@ public class ItemControllerTest {
     @Test
     void testUpdateItemWithStatus404() throws Exception {
         when(itemService.updateItem(anyLong(), any(), anyLong()))
-                .thenThrow(new NotFoundException("Тестовое исключение"));
+                .thenThrow(new NotFoundException("Validation error 404"));
 
         mvc.perform(patch("/items/{id}", 5)
                         .content(mapper.writeValueAsString(itemDto))
@@ -158,7 +159,7 @@ public class ItemControllerTest {
                         .accept(APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error", is("Тестовое исключение")));
+                .andExpect(jsonPath("$.error", is("Validation error 404")));
     }
 
     @Test
@@ -179,12 +180,12 @@ public class ItemControllerTest {
     @Test
     void testGetItemByIdWithWrongIdWithStatus404() throws Exception {
         when(itemService.getItemById(anyLong(), anyLong()))
-                .thenThrow(new NotFoundException("Вещь не найдена!"));
+                .thenThrow(new NotFoundException("Validation error 404"));
 
         mvc.perform(get("/items/{id}", 20)
                         .header("X-Sharer-User-Id", 20L))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error", is("Вещь не найдена!")));
+                .andExpect(jsonPath("$.error", is("Validation error 404")));
     }
 
     @Test
@@ -232,7 +233,7 @@ public class ItemControllerTest {
     @Test
     void testSaveCommentWithStatus404() throws Exception {
         when(commentService.saveComment(anyLong(), anyLong(), any()))
-                .thenThrow(new NotFoundException("Вещь не найдена!"));
+                .thenThrow(new NotFoundException("Validation error 404"));
 
         mvc.perform(post("/items/{id}/comment", 5)
                         .content(mapper.writeValueAsString(commentDto))
@@ -241,13 +242,13 @@ public class ItemControllerTest {
                         .accept(APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error", is("Вещь не найдена!")));
+                .andExpect(jsonPath("$.error", is("Validation error 404")));
     }
 
     @Test
     void testSaveCommentWithStatus400() throws Exception {
         when(commentService.saveComment(anyLong(), anyLong(), any()))
-                .thenThrow(new BadRequestException("Пользователь не может оставить отзыв об этой вещи"));
+                .thenThrow(new BadRequestExceptionHandler("Validation error 400"));
 
         mvc.perform(post("/items/{id}/comment", 2)
                         .content(mapper.writeValueAsString(commentDto))
@@ -256,6 +257,6 @@ public class ItemControllerTest {
                         .accept(APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error", is("Пользователь не может оставить отзыв об этой вещи")));
+                .andExpect(jsonPath("$.error", is("Validation error 400")));
     }
 }

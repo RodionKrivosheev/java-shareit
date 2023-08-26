@@ -1,24 +1,23 @@
 package ru.practicum.shareit.item;
 
+
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.practicum.shareit.error.exception.NotFoundException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
+import ru.practicum.shareit.item.comment.service.CommentService;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.comment.service.CommentService;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import javax.validation.ValidationException;
-
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -56,6 +55,21 @@ public class ItemServiceImplTest {
             .builder()
             .id(1L)
             .text("новый комментарий")
+            .build();
+
+    private final ItemDto itemDto2 = ItemDto
+            .builder()
+            .id(1L)
+            .name("Молоток")
+            .description("молоток забивной")
+            .available(true)
+            .build();
+    private final ItemDto itemDtoForUpdate = ItemDto
+            .builder()
+            .id(1L)
+            .name(null)
+            .description(null)
+            .available(true)
             .build();
 
     @Test
@@ -98,30 +112,17 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    void testSaveItemFailWrongDescription() {
+    void testSaveItemFailNegativeItemRequest() {
 
         userService.saveUser(userDto);
         itemService.saveItem(itemDto, 1L);
-        itemDto.setDescription(null);
+        itemDto.setRequestId(-20L);
 
-        ValidationException e = assertThrows(ValidationException.class,
+        NotFoundException e = assertThrows(NotFoundException.class,
                 () -> itemService.saveItem(itemDto, 1L));
-
-        assertThat(e.getMessage(), equalTo("Неверные данные."));
+        assertThat(e.getMessage(), equalTo("Неверный ID запроса."));
     }
 
-    @Test
-    void testSaveItemFailWrongAvailable() {
-
-        userService.saveUser(userDto);
-        itemService.saveItem(itemDto, 1L);
-        itemDto.setAvailable(null);
-
-        ValidationException e = assertThrows(ValidationException.class,
-                () -> itemService.saveItem(itemDto, 1L));
-
-        assertThat(e.getMessage(), equalTo("Неверные данные."));
-    }
 
     @Test
     void testUpdateItem() {
@@ -146,6 +147,16 @@ public class ItemServiceImplTest {
         NotFoundException e = assertThrows(NotFoundException.class,
                 () -> itemService.updateItem(1L, itemDto, 20L));
         assertThat(e.getMessage(), equalTo("Неверный ID пользователя."));
+    }
+
+    @Test
+    void testUpdateItemWithNameIsNull() {
+        userService.saveUser(userDto);
+        itemService.saveItem(itemDto2, 1L);
+        itemService.updateItem(itemDto2.getId(), itemDtoForUpdate, userDto.getId());
+
+        assertThat(itemDto2.getName(), equalTo("Молоток"));
+        assertThat(itemDto2.getDescription(), equalTo("молоток забивной"));
     }
 
     @Test

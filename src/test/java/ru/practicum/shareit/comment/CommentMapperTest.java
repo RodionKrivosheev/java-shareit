@@ -1,9 +1,8 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.comment;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.comment.service.CommentMapper;
@@ -12,7 +11,6 @@ import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
-@SpringBootTest
 public class CommentMapperTest {
 
     private Comment comment;

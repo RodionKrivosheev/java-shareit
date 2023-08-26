@@ -13,7 +13,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemRequestDto {
-
     private Long id;
     @NotBlank
     private String description;

@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,8 +13,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.error.exception.BadRequestException;
-import ru.practicum.shareit.error.exception.NotFoundException;
+import ru.practicum.shareit.exception.BadRequestExceptionHandler;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -24,15 +25,13 @@ import java.util.List;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static ru.practicum.shareit.booking.constant.Status.APPROVED;
-import static ru.practicum.shareit.booking.constant.Status.WAITING;
-import static ru.practicum.shareit.item.ItemMapper.toItem;
-import static ru.practicum.shareit.user.UserMapper.toUser;
-
+import static ru.practicum.shareit.booking.model.Status.APPROVED;
+import static ru.practicum.shareit.booking.model.Status.WAITING;
 
 @WebMvcTest(controllers = BookingController.class)
 @AutoConfigureWebMvc
@@ -75,8 +74,8 @@ public class BookingControllerTest {
                 .id(1L)
                 .start(LocalDateTime.now().plusDays(1))
                 .end(LocalDateTime.now().plusDays(10))
-                .booker(toUser(userDto))
-                .item(toItem(itemDto))
+                .booker(new BookingDto.UserDtoShort(userDto.getId(), userDto.getName()))
+                .item(new BookingDto.ItemDtoShort(itemDto.getId(), itemDto.getName()))
                 .status(WAITING)
                 .build();
 
@@ -145,7 +144,7 @@ public class BookingControllerTest {
     @Test
     void testSaveBookingWithStatus400() throws Exception {
         when(bookingService.saveBooking(any(), anyLong()))
-                .thenThrow(new BadRequestException("Bad Request Exception"));
+                .thenThrow(new BadRequestExceptionHandler("Validation error 400"));
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingRequestDto))
@@ -173,7 +172,7 @@ public class BookingControllerTest {
     @Test
     void testUpdateBookingWithStatus400() throws Exception {
         when(bookingService.updateBooking(anyLong(), anyLong(), anyBoolean()))
-                .thenThrow(new BadRequestException("Bad Request Exception"));
+                .thenThrow(new BadRequestExceptionHandler("Validation error 400"));
 
         mvc.perform(patch("/bookings/{id}?approved=true", 5)
                         .characterEncoding(UTF_8)
@@ -181,13 +180,13 @@ public class BookingControllerTest {
                         .accept(APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error", is("Bad Request Exception")));
+                .andExpect(jsonPath("$.error", is("Validation error 400")));
     }
 
     @Test
     void testUpdateBookingWithStatus404() throws Exception {
         when(bookingService.updateBooking(anyLong(), anyLong(), anyBoolean()))
-                .thenThrow(new NotFoundException("Not Found Exception"));
+                .thenThrow(new NotFoundException("Validation error 404"));
 
         mvc.perform(patch("/bookings/{id}?approved=true", 5)
                         .characterEncoding(UTF_8)
@@ -195,7 +194,7 @@ public class BookingControllerTest {
                         .accept(APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error", is("Not Found Exception")));
+                .andExpect(jsonPath("$.error", is("Validation error 404")));
     }
 
     @Test
@@ -213,12 +212,12 @@ public class BookingControllerTest {
     @Test
     void testGetByIdBookingWithStatus404() throws Exception {
         when(bookingService.getById(anyLong(), anyLong()))
-                .thenThrow(new NotFoundException("Not Found Exception"));
+                .thenThrow(new NotFoundException("Validation error 404"));
 
         mvc.perform(get("/bookings/{id}", 5)
                         .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error", is("Not Found Exception")));
+                .andExpect(jsonPath("$.error", is("Validation error 404")));
     }
 
     @Test
@@ -249,23 +248,23 @@ public class BookingControllerTest {
     @Test
     void testGetAllByBookerWithStatus400() throws Exception {
         when(bookingService.getAllByBooker(anyLong(), anyString(), anyInt(), anyInt()))
-                .thenThrow(new BadRequestException("Bad Request Exception"));
+                .thenThrow(new BadRequestExceptionHandler("Validation error 400"));
 
         mvc.perform(get("/bookings?state=WAITING&from=2&size=2")
                         .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error", is("Bad Request Exception")));
+                .andExpect(jsonPath("$.error", is("Validation error 400")));
     }
 
     @Test
     void testGetAllByBookerWithStatus404() throws Exception {
         when(bookingService.getAllByBooker(anyLong(), anyString(), anyInt(), anyInt()))
-                .thenThrow(new NotFoundException("Not Found Exception"));
+                .thenThrow(new NotFoundException("Validation error 404"));
 
         mvc.perform(get("/bookings?state=WAITING&from=2&size=2")
                         .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error", is("Not Found Exception")));
+                .andExpect(jsonPath("$.error", is("Validation error 404")));
     }
 
     @Test
@@ -296,22 +295,22 @@ public class BookingControllerTest {
     @Test
     void testGetAllByOwnerWithStatus400() throws Exception {
         when(bookingService.getAllByOwner(anyLong(), anyString(), anyInt(), anyInt()))
-                .thenThrow(new BadRequestException("Bad Request Exception"));
+                .thenThrow(new BadRequestExceptionHandler("Validation error 400"));
 
         mvc.perform(get("/bookings/owner?state=WAITING&from=2&size=2")
                         .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error", is("Bad Request Exception")));
+                .andExpect(jsonPath("$.error", is("Validation error 400")));
     }
 
     @Test
     void testGetAllByOwnerWithStatus404() throws Exception {
         when(bookingService.getAllByOwner(anyLong(), anyString(), anyInt(), anyInt()))
-                .thenThrow(new NotFoundException("Not Found Exception"));
+                .thenThrow(new NotFoundException("Validation error 404"));
 
         mvc.perform(get("/bookings/owner?state=WAITING&from=2&size=2")
                         .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error", is("Not Found Exception")));
+                .andExpect(jsonPath("$.error", is("Validation error 404")));
     }
 }
