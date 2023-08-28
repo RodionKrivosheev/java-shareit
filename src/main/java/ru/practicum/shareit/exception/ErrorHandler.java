@@ -14,43 +14,36 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFound(final NotFoundException e) {
-        log.error("Not Found Exception");
+        log.error("Not Found Exception {}", e.getMessage(), e);
         return new ErrorResponse("Validation error 404", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidate(final ValidationException e) {
-        log.error("Validation Exception");
-        return new ErrorResponse("Validation error 400", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleValidate(final UserNotFoundException e) {
-        log.error("User not found Exception");
-        return new ErrorResponse("Validation error 404", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleValidate(final ErrorValidation e) {
-        log.error("Validation Exception");
-        return new ErrorResponse("Validation error 409", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidate(final BookingException e) {
-        log.error("Validation Exception");
+    public ErrorResponse handleValidate(final ValidationExceptionHandler e) {
+        log.error("Validation Exception {}", e.getMessage(), e);
         return new ErrorResponse("Validation error 400", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleValidate(final BookingValidationException e) {
-        log.error("Validation Exception");
+        log.error("Validation Exception {}", e.getMessage(), e);
         return new ErrorResponse(e.getMessage(), e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBadRequest(final BadRequestExceptionHandler e) {
+        log.error("Bad request exception{}", e.getMessage(), e);
+        return new ErrorResponse("Validation error 400", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidate(final javax.validation.ValidationException e) {
+        log.error("Validation Exception");
+        return new ErrorResponse("Validation error 400", e.getMessage());
     }
 
 }

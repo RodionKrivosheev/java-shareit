@@ -2,6 +2,9 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -9,22 +12,23 @@ import ru.practicum.shareit.booking.dto.BookingShortDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.exception.UserNotFoundException;
+import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
 import ru.practicum.shareit.item.comment.model.Comment;
 import ru.practicum.shareit.item.comment.repository.CommentRepository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ru.practicum.shareit.booking.constant.Status.APPROVED;
+import static ru.practicum.shareit.booking.model.Status.APPROVED;
 import static ru.practicum.shareit.item.ItemMapper.*;
 import static ru.practicum.shareit.item.comment.service.CommentMapper.toCommentDto;
 import static ru.practicum.shareit.item.comment.service.CommentMapper.toCommentsDto;
@@ -37,33 +41,32 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     public ItemDto saveItem(ItemDto itemDto, Long userId) {
-        if (itemDto.getAvailable() == null) {
-            throw new ValidationException("Не указана доступность вещи");
-        }
-        System.out.println(itemDto.getAvailable());
-        User userOwner = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Неверный ID пользователя."));
-
+        User savedUser = getUser(userId);
         Item item = toItem(itemDto);
-        item.setOwner(userOwner);
-        validateItem(item);
+        item.setOwner(savedUser);
+
+        if (itemDto.getRequestId() != null) {
+            ItemRequest itemRequest = getItemRequest(itemDto.getRequestId());
+            item.setRequest(itemRequest);
+        }
         log.info("Вещь добавлена.");
         return toItemDto(itemRepository.save(item));
     }
 
     @Override
     public ItemDto updateItem(Long itemId, ItemDto itemDto, Long userId) {
-
         Item item = getItem(itemId);
         if (!userId.equals(item.getOwner().getId())) {
             throw new NotFoundException("Неверный ID пользователя.");
         }
-        if (itemDto.getName() != null) {
+        if (itemDto.getName() != null && !itemDto.getName().isBlank()) {
             item.setName(itemDto.getName());
         }
-        if (itemDto.getDescription() != null) {
+        if (itemDto.getDescription() != null && !itemDto.getDescription().isBlank()) {
             item.setDescription(itemDto.getDescription());
         }
         if (itemDto.getAvailable() != null) {
@@ -87,9 +90,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getItemByUserId(Long userId) {
+    public List<ItemDto> getItemByUserId(Long userId, int from, int size) {
+        Pageable page = PageRequest.of(from / size, size);
 
-        List<Item> items = itemRepository.findAllByOwnerId(userId).stream().sorted(Comparator.comparing(Item::getId)).collect(Collectors.toList());
+        List<Item> items = itemRepository.findAllByOwnerId(userId, page).stream().sorted(Comparator.comparing(Item::getId)).collect(Collectors.toList());
 
         List<ItemDto> itemsDto = this.setBookings(items);
         this.setComments(itemsDto);
@@ -98,28 +102,25 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getItemByText(String text) {
+    public List<ItemDto> getItemByText(String text, int from, int size) {
 
         if (text.isBlank()) {
-            return new ArrayList<>();
+            return List.of();
         }
         String query = text.toLowerCase();
-        List<Item> items = itemRepository.getItemByText(query);
+        Pageable page = PageRequest.of(from / size, size);
+        Page<Item> items = itemRepository.getItemByText(query, page);
         if (items.isEmpty()) {
-            return new ArrayList<>();
+            return List.of();
         }
-        return toItemsDto(items);
+        return items.stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 
 
     private Item getItem(Long itemId) {
         return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Неверный ID."));
-    }
-
-    private void validateItem(Item item) {
-        if (item.getAvailable() == null || item.getName().isBlank() || item.getDescription() == null || item.getDescription().isBlank() || item.getName() == null) {
-            throw new ValidationException("Неверные данные.");
-        }
     }
 
     private void populateItemDto(ItemDto itemDto) {
@@ -168,5 +169,15 @@ public class ItemServiceImpl implements ItemService {
             });
         }
         return itemsDto;
+    }
+
+    private User getUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException("Неверный ID пользователя."));
+    }
+
+    private ItemRequest getItemRequest(Long requestId) {
+        return itemRequestRepository.findById(requestId).orElseThrow(() ->
+                new NotFoundException("Неверный ID запроса."));
     }
 }
