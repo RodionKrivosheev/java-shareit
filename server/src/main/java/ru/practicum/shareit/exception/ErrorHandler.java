@@ -19,13 +19,6 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidate(final Exception e) {
-        log.error("Validation Exception {}", e.getMessage(), e);
-        return new ErrorResponse("Validation error 400", e.getMessage());
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleValidate(final BookingValidationException e) {
         log.error("Validation Exception {}", e.getMessage(), e);
