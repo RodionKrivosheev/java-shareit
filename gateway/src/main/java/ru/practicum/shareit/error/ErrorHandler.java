@@ -18,6 +18,13 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidate(final ValidationException e) {
+        log.error("Validation Exception {}", e.getMessage(), e);
+        return new ErrorResponse("Validation error 400", e.getMessage());
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleValidate(final BookingValidationException e) {
         log.error("Validation Exception {}", e.getMessage(), e);
@@ -33,7 +40,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidate(final ValidationException e) {
+    public ErrorResponse handleValidate(final javax.validation.ValidationException e) {
         log.error("Validation Exception");
         return new ErrorResponse("Validation error 400", e.getMessage());
     }
