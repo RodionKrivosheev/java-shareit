@@ -20,7 +20,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidate(final ValidationExceptionHandler e) {
+    public ErrorResponse handleValidate(final Exception e) {
         log.error("Validation Exception {}", e.getMessage(), e);
         return new ErrorResponse("Validation error 400", e.getMessage());
     }
@@ -41,7 +41,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidate(final javax.validation.ValidationException e) {
+    public ErrorResponse handleValidate(final ValidationException e) {
         log.error("Validation Exception");
         return new ErrorResponse("Validation error 400", e.getMessage());
     }

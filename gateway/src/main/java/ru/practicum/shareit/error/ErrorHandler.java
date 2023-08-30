@@ -2,6 +2,7 @@ package ru.practicum.shareit.error;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -17,10 +18,10 @@ public class ErrorHandler {
         return new ErrorResponse("Validation error 404", e.getMessage());
     }
 
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidate(final ValidationExceptionHandler e) {
-        log.error("Validation Exception {}", e.getMessage(), e);
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ErrorResponse handleValidate(MethodArgumentNotValidException e) {
+        log.error("Bad request exception");
         return new ErrorResponse("Validation error 400", e.getMessage());
     }
 
@@ -29,19 +30,5 @@ public class ErrorHandler {
     public ErrorResponse handleValidate(final BookingValidationException e) {
         log.error("Validation Exception {}", e.getMessage(), e);
         return new ErrorResponse(e.getMessage(), e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleBadRequest(final BadRequestExceptionHandler e) {
-        log.error("Bad request exception{}", e.getMessage(), e);
-        return new ErrorResponse("Validation error 400", e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidate(final javax.validation.ValidationException e) {
-        log.error("Validation Exception");
-        return new ErrorResponse("Validation error 400", e.getMessage());
     }
 }

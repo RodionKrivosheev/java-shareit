@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.constants.ConstRequestHeader;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
@@ -22,29 +23,27 @@ public class ItemController {
 
     private final ItemClient itemClient;
 
-    private final  String sharerUserId = "X-Sharer-User-Id";
-
     @PostMapping
-    ResponseEntity<Object> saveItem(@RequestHeader(sharerUserId) Long userId, @RequestBody @Valid ItemDto itemDto) {
+    ResponseEntity<Object> saveItem(@RequestHeader(ConstRequestHeader.SHARER_USER_ID) Long userId, @RequestBody @Valid ItemDto itemDto) {
         log.info("Create item {}", itemDto);
         return itemClient.saveItem(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
-    ResponseEntity<Object> updateItem(@PathVariable Long itemId, @RequestHeader(sharerUserId) Long userId,
+    ResponseEntity<Object> updateItem(@PathVariable Long itemId, @RequestHeader(ConstRequestHeader.SHARER_USER_ID) Long userId,
                                       @RequestBody ItemDto itemDto) {
         log.info("Update item {}", itemId);
         return itemClient.updateItem(userId, itemId, itemDto);
     }
 
     @GetMapping("/{itemId}")
-    ResponseEntity<Object> getItemById(@PathVariable Long itemId, @RequestHeader(sharerUserId) Long userId) {
+    ResponseEntity<Object> getItemById(@PathVariable Long itemId, @RequestHeader(ConstRequestHeader.SHARER_USER_ID) Long userId) {
         log.info("Get item by userId={}", userId);
         return itemClient.getItemById(itemId, userId);
     }
 
     @GetMapping
-    public ResponseEntity<Object> getItemByUserId(@RequestHeader(sharerUserId) Long userId,
+    public ResponseEntity<Object> getItemByUserId(@RequestHeader(ConstRequestHeader.SHARER_USER_ID) Long userId,
                                                   @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                                   @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("Get all items from user {}", userId);
@@ -60,7 +59,7 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public ResponseEntity<Object> saveComment(@RequestHeader(sharerUserId) Long userId, @PathVariable Long itemId,
+    public ResponseEntity<Object> saveComment(@RequestHeader(ConstRequestHeader.SHARER_USER_ID) Long userId, @PathVariable Long itemId,
                                               @RequestBody @Valid CommentDto commentDto) {
         log.info("Create comment from user {}", userId);
         return itemClient.saveComment(userId, itemId, commentDto);

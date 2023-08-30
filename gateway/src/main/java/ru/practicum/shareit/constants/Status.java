@@ -1,20 +1,14 @@
-package ru.practicum.shareit.booking.dto;
+package ru.practicum.shareit.constants;
 
 import java.util.Optional;
 
 public enum Status {
 
-    // Все
     ALL,
-    // Текущие
     CURRENT,
-    // Будущие
     FUTURE,
-    // Завершенные
     PAST,
-    // Отклоненные
     REJECTED,
-    // Ожидающие подтверждения
     WAITING;
 
     public static Optional<Status> from(String stringState) {

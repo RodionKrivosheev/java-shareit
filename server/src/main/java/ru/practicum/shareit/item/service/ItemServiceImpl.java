@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ru.practicum.shareit.booking.model.Status.APPROVED;
+import static ru.practicum.shareit.constants.Status.APPROVED;
 import static ru.practicum.shareit.item.ItemMapper.*;
 import static ru.practicum.shareit.item.comment.service.CommentMapper.toCommentDto;
 import static ru.practicum.shareit.item.comment.service.CommentMapper.toCommentsDto;

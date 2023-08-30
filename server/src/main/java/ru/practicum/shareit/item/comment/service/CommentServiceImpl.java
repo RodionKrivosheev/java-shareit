@@ -16,7 +16,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 
-import static ru.practicum.shareit.booking.model.Status.APPROVED;
+import static ru.practicum.shareit.constants.Status.APPROVED;
 import static ru.practicum.shareit.item.comment.service.CommentMapper.toComment;
 import static ru.practicum.shareit.item.comment.service.CommentMapper.toCommentDto;
 
