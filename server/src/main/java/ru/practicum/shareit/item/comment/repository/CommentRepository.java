@@ -11,7 +11,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findAllByItemId(Long itemId);
 
     @Query(value = "SELECT c FROM Comment c " +
-            "WHERE c.itemShortDto.id IN (:itemId)")
+            "WHERE c.item.id IN (:itemId)")
     Set<Comment> findCommentsByItemId(Set<Long> itemId);
 
 }

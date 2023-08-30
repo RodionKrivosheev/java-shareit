@@ -19,7 +19,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidate(final ValidationException e) {
+    public ErrorResponse handleValidate(final ValidationExceptionHandler e) {
         log.error("Validation Exception {}", e.getMessage(), e);
         return new ErrorResponse("Validation error 400", e.getMessage());
     }

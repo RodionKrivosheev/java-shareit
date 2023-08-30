@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request.service;
+package ru.practicum.shareit.request.Service;
 
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
