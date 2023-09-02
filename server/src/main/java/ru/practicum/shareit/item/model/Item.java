@@ -5,8 +5,6 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -21,13 +19,10 @@ public class Item {
     @Column(nullable = false)
     private Long id;
     @Column(nullable = false)
-    @NotBlank
     private String name;
     @Column(nullable = false)
-    @NotBlank
     private String description;
     @Column(nullable = false)
-    @NotNull
     private Boolean available;
     @ManyToOne (fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")

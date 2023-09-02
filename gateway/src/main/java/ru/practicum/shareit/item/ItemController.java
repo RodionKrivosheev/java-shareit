@@ -7,11 +7,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.Create;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.Update;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.Collections;
 
 import static ru.practicum.shareit.constants.ConstRequestHeader.SHARER_USER_ID;
 
@@ -19,19 +22,18 @@ import static ru.practicum.shareit.constants.ConstRequestHeader.SHARER_USER_ID;
 @RequestMapping("/items")
 @Slf4j
 @RequiredArgsConstructor
-@Validated
 public class ItemController {
 
     private final ItemClient itemClient;
 
     @PostMapping
-    ResponseEntity<Object> saveItem(@RequestHeader(SHARER_USER_ID) Long userId, @RequestBody @Valid ItemDto itemDto) {
+    ResponseEntity<Object> saveItem(@RequestHeader(SHARER_USER_ID) Long userId, @RequestBody @Validated(Create.class) ItemDto itemDto) {
         log.info("Create item {}", itemDto);
         return itemClient.saveItem(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
-    ResponseEntity<Object> updateItem(@PathVariable Long itemId, @RequestHeader(SHARER_USER_ID) Long userId,
+    ResponseEntity<Object> updateItem(@Validated(Update.class) @PathVariable Long itemId, @RequestHeader(SHARER_USER_ID) Long userId,
                                       @RequestBody ItemDto itemDto) {
         log.info("Update item {}", itemId);
         return itemClient.updateItem(userId, itemId, itemDto);
@@ -56,7 +58,11 @@ public class ItemController {
                                                 @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                                 @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("Search items by text {}", text);
-        return itemClient.getItemByText(text, from, size);
+        if (text.isBlank()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        } else {
+            return itemClient.getItemByText(text, from, size);
+        }
     }
 
     @PostMapping("/{itemId}/comment")

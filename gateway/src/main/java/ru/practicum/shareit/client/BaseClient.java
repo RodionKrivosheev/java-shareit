@@ -10,6 +10,7 @@ import java.util.Map;
 
 import static ru.practicum.shareit.constants.ConstRequestHeader.SHARER_USER_ID;
 
+
 public class BaseClient {
 
     protected final RestTemplate rest;

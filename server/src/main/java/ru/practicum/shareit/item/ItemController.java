@@ -3,15 +3,13 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.comment.dto.CommentDto;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.comment.service.CommentService;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.util.List;
 
-import static ru.practicum.shareit.constants.ConstReqHead.SHARER_USER_ID;
+import static ru.practicum.shareit.constants.ConstRequestHeader.SHARER_USER_ID;
 
 @RestController
 @RequestMapping("/items")
@@ -23,7 +21,7 @@ public class ItemController {
     private final CommentService commentService;
 
     @PostMapping
-    ItemDto saveItem(@RequestHeader(SHARER_USER_ID) Long userId, @Valid @RequestBody ItemDto itemDto) {
+    ItemDto saveItem(@RequestHeader(SHARER_USER_ID) Long userId, @RequestBody ItemDto itemDto) {
         return itemService.saveItem(itemDto, userId);
     }
 
@@ -40,21 +38,21 @@ public class ItemController {
 
     @GetMapping
     List<ItemDto> getItemByUserId(@RequestHeader(SHARER_USER_ID) Long userId,
-                                  @RequestParam(defaultValue = "0") @Min(0) int from,
-                                  @RequestParam(defaultValue = "20") @Min(1) int size) {
+                                  @RequestParam(defaultValue = "0") int from,
+                                  @RequestParam(defaultValue = "20") int size) {
         return itemService.getItemByUserId(userId, from, size);
     }
 
     @GetMapping("/search")
     List<ItemDto> getItemByText(@RequestParam String text,
-                                @RequestParam(defaultValue = "0") @Min(0) int from,
-                                @RequestParam(defaultValue = "20") @Min(1) int size) {
+                                @RequestParam(defaultValue = "0") int from,
+                                @RequestParam(defaultValue = "20") int size) {
         return itemService.getItemByText(text, from, size);
     }
 
     @PostMapping("/{itemId}/comment")
     public CommentDto saveComment(@RequestHeader(SHARER_USER_ID) Long userId, @PathVariable Long itemId,
-                                  @RequestBody @Valid CommentDto commentDto) {
+                                  @RequestBody CommentDto commentDto) {
         return commentService.saveComment(itemId, userId, commentDto);
     }
 }
